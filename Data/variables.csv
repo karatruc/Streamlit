@@ -1,0 +1,33 @@
+variable;libelle
+lum;Luminosité
+agg;Agglomération
+int;Intersection
+atm;Conditions atmosphériques
+col;Type de collision
+catr;Catégorie de route
+circ;Régime de circulation
+vosp;Voie réservée existante
+prof;Déclivité
+plan;Tracé en plan
+surf;Etat de la surface
+infra;Aménagement - Infrastructure
+situ;Situation de l’accident
+senc;Sens de circulation
+catv;Catégorie du véhicule
+obsm;Obstacle mobile heurté
+choc;Point de choc initial
+manv;Manoeuvre
+motor;Type de motorisation du véhicule
+catu;Catégorie d'usager
+grav;Gravité
+sexe;sexe
+place;Place de l'usager
+trajet;Motif du déplacement
+secu1;Equipement de sécurité
+secu2;Equipement de sécurité
+secu3;Equipement de sécurité
+locp;Localisation du piéton
+etatp;Piéton accidenté
+actp;Action du piéton
+obs;Obstacle fixe heurté
+tranche_age;Tranche d'age

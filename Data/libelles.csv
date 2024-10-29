@@ -1,0 +1,295 @@
+﻿colonne;indice;libelle
+lum;1;Plein jour
+lum;2;Crépuscule ou aube
+lum;3;Nuit sans éclairage public
+lum;4;Nuit avec éclairage public non allumé
+lum;5;Nuit avec éclairage public allumé
+agg;1;Hors agglomération
+agg;2;En agglomération
+int;1;Hors intersection
+int;2;Intersection en X
+int;3;Intersection en T
+int;4;Intersection en Y
+int;5;Intersection à plus de 4 branches
+int;6;Giratoire
+int;7;Place
+int;8;Passage à niveau
+int;9;Autre intersection
+atm;-1;Non renseigné
+atm;1;Normale
+atm;2;Pluie légère
+atm;3;Pluie forte
+atm;4;Neige - grêle
+atm;5;Brouillard - fumée
+atm;6;Vent fort - tempête
+atm;7;Temps éblouissant
+atm;8;Temps couvert
+atm;9;Autre
+col;-1;Non renseigné
+col;1;Deux véhicules - frontale
+col;2;Deux véhicules – par l’arrière
+col;3;Deux véhicules – par le coté
+col;4;Trois véhicules et plus – en chaîne
+col;5;Trois véhicules et plus - collisions multiples
+col;6;Autre collision
+col;7;Sans collision
+catr;1;Autoroute
+catr;2;Route nationale
+catr;3;Route Départementale
+catr;4;Voie Communales
+catr;5;Hors réseau public
+catr;6;Parc de stationnement ouvert à la circulation publique
+catr;7;Routes de métropole urbaine
+catr;9;autre
+circ;-1;Non renseigné
+circ;1;A sens unique
+circ;2;Bidirectionnelle
+circ;3;A chaussées séparées
+circ;4;Avec voies d’affectation variable
+vosp;-1;Non renseigné
+vosp;0;Sans objet
+vosp;1;Piste cyclable
+vosp;2;Bande cyclable
+vosp;3;Voie réservée
+prof;-1;Non renseigné
+prof;1;Plat
+prof;2;Pente
+prof;3;Sommet de côte
+prof;4;Bas de côte
+plan;-1;Non renseigné
+plan;1;Partie rectiligne
+plan;2;En courbe à gauche
+plan;3;En courbe à droite
+plan;4;En « S »
+surf;-1;Non renseigné
+surf;1;Normale
+surf;2;Mouillée
+surf;3;Flaques
+surf;4;Inondée
+surf;5;Enneigée
+surf;6;Boue
+surf;7;Verglacée
+surf;8;Corps gras – huile
+surf;9;Autre
+infra;-1;Non renseigné
+infra;0;Aucun
+infra;1;Souterrain - tunnel
+infra;2;Pont - autopont
+infra;3;Bretelle d’échangeur ou de raccordement
+infra;4;Voie ferrée
+infra;5;Carrefour aménagé
+infra;6;Zone piétonne
+infra;7;Zone de péage
+infra;8;Chantier
+infra;9;Autres
+situ;-1;Non renseigné
+situ;0;Aucun
+situ;1;Sur chaussée
+situ;2;Sur bande d’arrêt d’urgence
+situ;3;Sur accotement
+situ;4;Sur trottoir
+situ;5;Sur piste cyclable
+situ;6;Sur autre voie spéciale
+situ;8;Autres
+senc;-1;Non renseigné
+senc;0;Inconnu
+senc;1;PK ou PR ou numéro d’adresse postale croissant
+senc;2;PK ou PR ou numéro d’adresse postale décroissant
+senc;3;Absence de repère
+catv;00;Indéterminable
+catv;01;Bicyclette
+catv;02;Cyclomoteur <50cm3
+catv;03;"Voiturette (Quadricycle à moteur carrossé) (anciennement ""voiturette ou tricycle à moteur"")"
+catv;04;Référence inutilisée depuis 2006 (scooter immatriculé)
+catv;05;Référence inutilisée depuis 2006 (motocyclette)
+catv;06;Référence inutilisée depuis 2006 (side-car)
+catv;07;VL seul
+catv;08;Référence inutilisée depuis 2006 (VL + caravane)
+catv;09;Référence inutilisée depuis 2006 (VL + remorque)
+catv;10;VU seul 1,5T <= PTAC <= 3,5T avec ou sans remorque (anciennement VU seul 1,5T <= PTAC <= 3,5T)
+catv;11;Référence inutilisée depuis 2006 (VU (10) + caravane)
+catv;12;Référence inutilisée depuis 2006 (VU (10) + remorque)
+catv;13;PL seul 3,5T <PTCA <= 7,5T
+catv;14;PL seul > 7,5T
+catv;15;PL > 3,5T + remorque
+catv;16;Tracteur routier seul
+catv;17;Tracteur routier + semi-remorque
+catv;18;Référence inutilisée depuis 2006 (transport en commun)
+catv;19;Référence inutilisée depuis 2006 (tramway)
+catv;20;Engin spécial
+catv;21;Tracteur agricole
+catv;30;Scooter < 50 cm3
+catv;31;Motocyclette > 50 cm3 et <= 125 cm3
+catv;32;Scooter > 50 cm3 et <= 125 cm3
+catv;33;Motocyclette > 125 cm3
+catv;34;Scooter > 125 cm3
+catv;35;Quad léger <= 50 cm3 (Quadricycle à moteur non carrossé)
+catv;36;Quad lourd > 50 cm3 (Quadricycle à moteur non carrossé)
+catv;37;Autobus
+catv;38;Autocar
+catv;39;Train
+catv;40;Tramway
+catv;41;3RM <= 50 cm3
+catv;42;3RM > 50 cm3 <= 125 cm3
+catv;43;3RM > 125 cm3
+catv;50;EDP à moteur
+catv;60;EDP sans moteur
+catv;80;VAE
+catv;99;Autre véhicule
+obsm;-1;Non renseigné
+obsm;0;Aucun
+obsm;1;Piéton
+obsm;2;Véhicule
+obsm;4;Véhicule sur rail
+obsm;5;Animal domestique
+obsm;6;Animal sauvage
+obsm;9;Autre
+choc;-1;Non renseigné
+choc;0;Aucun
+choc;1;Avant
+choc;2;Avant droit
+choc;3;Avant gauche
+choc;4;Arrière
+choc;5;Arrière droit
+choc;6;Arrière gauche
+choc;7;Côté droit
+choc;8;Côté gauche
+choc;9;Chocs multiples (tonneaux)
+manv;-1;Non renseigné
+manv;0;Inconnue
+manv;1;Sans changement de direction
+manv;2;Même sens, même file
+manv;3;Entre 2 files
+manv;4;En marche arrière
+manv;5;A contresens
+manv;6;En franchissant le terre-plein central
+manv;7;Dans le couloir bus, dans le même sens
+manv;8;Dans le couloir bus, dans le sens inverse
+manv;9;En s’insérant
+manv;10;En faisant demi-tour sur la chaussée
+manv;11;Changeant de file A gauche
+manv;12;Changeant de file A droite
+manv;13;Déporté A gauche
+manv;14;Déporté A droite
+manv;15;Tournant A gauche
+manv;16;Tournant A droite
+manv;17;Dépassant A gauche
+manv;18;Dépassant A droite
+manv;19;Traversant la chaussée
+manv;20;Manoeuvre de stationnement
+manv;21;Manoeuvre d’évitement
+manv;22;Ouverture de porte
+manv;23;Arrêté (hors stationnement)
+manv;24;En stationnement (avec occupants
+manv;25;Circulant sur trottoir
+manv;26;Autres manoeuvres
+motor;-1;Non renseigné
+motor;0;Inconnue
+motor;1;Hydrocarbures
+motor;2;Hybride électrique
+motor;3;Electrique
+motor;4;Hydrogène
+motor;5;Humaine
+motor;6;Autre
+catu;1;Conducteur
+catu;2;Passager
+catu;3;Piéton
+grav;1;Indemne
+grav;2;Tué
+grav;3;Blessé hospitalisé
+grav;4;Blessé léger
+sexe;1;Masculin
+sexe;2;Féminin
+trajet;-1;Non renseigné
+trajet;0;Non renseigné
+trajet;1;Domicile – travail
+trajet;2;Domicile – école
+trajet;3;Courses – achats
+trajet;4;Utilisation professionnelle
+trajet;5;Promenade – loisirs
+trajet;9;Autre
+secu1;-1;Non renseigné
+secu1;0;Aucun équipement
+secu1;1;Ceinture
+secu1;2;Casque
+secu1;3;Dispositif enfants
+secu1;4;Gilet réfléchissant
+secu1;5;Airbag (2RM/3RM)
+secu1;6;Gants (2RM/3RM)
+secu1;7;Gants + Airbag (2RM/3RM)
+secu1;8;Non déterminable
+secu1;9;Autre
+secu2;-1;Non renseigné
+secu2;0;Aucun équipement
+secu2;1;Ceinture
+secu2;2;Casque
+secu2;3;Dispositif enfants
+secu2;4;Gilet réfléchissant
+secu2;5;Airbag (2RM/3RM)
+secu2;6;Gants (2RM/3RM)
+secu2;7;Gants + Airbag (2RM/3RM)
+secu2;8;Non déterminable
+secu2;9;Autre
+secu3;-1;Non renseigné
+secu3;0;Aucun équipement
+secu3;1;Ceinture
+secu3;2;Casque
+secu3;3;Dispositif enfants
+secu3;4;Gilet réfléchissant
+secu3;5;Airbag (2RM/3RM)
+secu3;6;Gants (2RM/3RM)
+secu3;7;Gants + Airbag (2RM/3RM)
+secu3;8;Non déterminable
+secu3;9;Autre
+locp;-1;Non renseigné
+locp;0;Sans objet
+locp;1;Sur chaussée : A + 50 m du passage piéton
+locp;2;Sur chaussée : A – 50 m du passage piéton
+locp;3;Sur passage piéton : Sans signalisation lumineuse
+locp;4;Sur passage piéton : Avec signalisation lumineuse
+locp;5;Sur trottoir
+locp;6;Sur accotement
+locp;7;Sur refuge ou BAU
+locp;8;Sur contre allée
+locp;9;Inconnue
+etatp;-1;Non renseigné
+etatp;0;Se déplaçant : Non renseigné ou sans objet
+etatp;1;Se déplaçant Sens véhicule heurtant
+etatp;2;Se déplaçant Sens inverse du véhicule
+etatp;3;Traversant
+etatp;4;Masqué
+etatp;5;Jouant – courant
+etatp;6;Avec animal
+etatp;9;Autre
+etatp;A;Monte/descend du véhicule
+etatp;B;Inconnue
+obs;-1;Non renseigné
+obs;0;Sans objet
+obs;1;Véhicule en stationnement
+obs;2;Arbre
+obs;3;Glissière métallique
+obs;4;Glissière béton
+obs;5;Autre glissière
+obs;6;Bâtiment, mur, pile de pont
+obs;7;Support de signalisation verticale ou poste d’appel d’urgence
+obs;8;Poteau
+obs;9;Mobilier urbain
+obs;10;Parapet
+obs;11;Ilot, refuge, borne haute
+obs;12;Bordure de trottoir
+obs;13;Fossé, talus, paroi rocheuse
+obs;14;Autre obstacle fixe sur chaussée
+obs;15;Autre obstacle fixe sur trottoir ou accotement
+obs;16;Sortie de chaussée sans obstacle
+obs;17;Buse – tête d’aqueduc
+actp;-1;Non renseigné
+actp;0;Se déplaçant : Non renseigné ou sans objet
+actp;1;Se déplaçant : Sens véhicule heurtant
+actp;2;Se déplaçant : Sens inverse du véhicule
+actp;3;Traversant
+actp;4;Masqué
+actp;5;Jouant – courant
+actp;6;Avec animal
+actp;9;Autre
+actp;A;Monte/descend du véhicule
+actp;B;Inconnue
