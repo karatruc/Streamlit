@@ -4,7 +4,7 @@ Projet de modélisation de la gravité des accidents de la route
 
 ## Auteurs du projet
 * Eric FAVRE
-* Vitor BIOULAC
+* Victor BIOULAC
 * Thierno SIDIBE
 
 ## Installer les dépendances
