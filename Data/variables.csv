@@ -23,11 +23,10 @@ grav;Gravité
 sexe;sexe
 place;Place de l'usager
 trajet;Motif du déplacement
-secu1;Equipement de sécurité
-secu2;Equipement de sécurité
-secu3;Equipement de sécurité
+secu1;Premier équipement de sécurité
+secu2;Deuxième équipement de sécurité
+secu3;Troisème équipement de sécurité
 locp;Localisation du piéton
 etatp;Piéton accidenté
 actp;Action du piéton
 obs;Obstacle fixe heurté
-tranche_age;Tranche d'age
