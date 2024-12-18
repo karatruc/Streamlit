@@ -76,42 +76,44 @@ models = get_models()
 options = {}
 
 #caractéristiques
-with st.expander("Caractéristiques de l'accident"):
-    st.subheader("Caractéristiques de l'accident", divider="gray")
-    for k in [x for x in var_cara if x not in ['mois','jour']]:
-        vals = remove_NR(vars[k]['valeurs'])
-        
-        options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
 
-    ddmmyyyy = st.date_input('Date de l\'accident')
-    hhmm = st.time_input('Heure de l\'accident')
+st.subheader("Caractéristiques de l'accident", divider="gray")
+for k in [x for x in var_cara if x not in ['mois','jour']]:
+    vals = remove_NR(vars[k]['valeurs'])
+    
+    options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
 
-    options['jour'] = ddmmyyyy.strftime('%d')
-    options['mois'] = ddmmyyyy.strftime('%m')
-    options['an'] = ddmmyyyy.strftime('%Y')
+ddmmyyyy = st.date_input('Date de l\'accident')
+hhmm = st.time_input('Heure de l\'accident')
 
-    options['hrmn'] = hhmm.strftime('%H%M') 
+options['jour'] = ddmmyyyy.strftime('%d')
+options['mois'] = ddmmyyyy.strftime('%m')
+options['an'] = ddmmyyyy.strftime('%Y')
+
+options['hrmn'] = hhmm.strftime('%H%M') 
 
 
-    # map
-    map_cont = st.container(height=735, border=True)
-    DEFAULT_LATITUDE = 46.3
-    DEFAULT_LONGITUDE = 2.85
+# map
+map_cont = st.container(height=735, border=True)
+DEFAULT_LATITUDE = 46.3
+DEFAULT_LONGITUDE = 2.85
 
-    with map_cont:
-        m = folium.Map(location=[DEFAULT_LATITUDE, DEFAULT_LONGITUDE], zoom_start=6)
+with map_cont:
+    m = folium.Map(location=[DEFAULT_LATITUDE, DEFAULT_LONGITUDE], zoom_start=6)
 
-        # The code below will be responsible for displaying 
-        # the popup with the latitude and longitude shown
-        m.add_child(folium.LatLngPopup())
-        f_map = st_folium(m, use_container_width=True)# width=725)
-        options['lat'] = DEFAULT_LATITUDE
-        options['long'] = DEFAULT_LONGITUDE
+    # The code below will be responsible for displaying 
+    # the popup with the latitude and longitude shown
+    m.add_child(folium.LatLngPopup())
+    f_map = st_folium(m, use_container_width=True)# width=725)
+    options['lat'] = DEFAULT_LATITUDE
+    options['long'] = DEFAULT_LONGITUDE
 
-    if f_map.get("last_clicked"):
-        options['lat'] = f_map["last_clicked"]["lat"]
-        options['long'] = f_map["last_clicked"]["lng"]
+if f_map.get("last_clicked"):
+    options['lat'] = f_map["last_clicked"]["lat"]
+    options['long'] = f_map["last_clicked"]["lng"]
 
+    st.write("latitude : {}".format(options['lat']))
+    st.write("longitude : {}".format(options['long']))
 
 #lieux
 st.subheader("Lieu de l'accident", divider="gray")
@@ -119,9 +121,10 @@ for k in var_lieu :
     vals = remove_NR(vars[k]['valeurs'])
     options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
 
-options['nbv'] = st.number_input('Nombre de voies de circulation')
-options['vma'] = st.number_input('Vitesse maximale autorisée')
+#options['nbv'] = st.number_input('Nombre de voies de circulation')
+options['nbv'] = st.slider('Nombre de voies de circulation', min_value = 1, max_value = 12, value = 1, step = 1)
 
+options['vma'] = st.slider('Vitesse maximale autorisée', min_value = 10, max_value = 130, value = 50, step = 5)
 #vehicules
 st.subheader("Véhicule transportant la victime", divider="gray")
 for k in var_vehi :
@@ -136,7 +139,7 @@ for k in [x for x in var_usag if x not in ['place','age']] :
     vals = remove_NR(vars[k]['valeurs'])
     options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
 
-options['an_nais'] = st.selectbox('Année de naissance', range(1900,2025))
+options['an_nais'] = st.selectbox('Année de naissance', range(1900,2025), index = 100)
 
 if options['catv'] in catv_tc :
     content = html_places['tc']
@@ -146,8 +149,10 @@ else  :
     content = html_places['car']
 
 options['place'] = click_detector(content)
+st.write("place : {}".format(options['place']))
 
 
+st.subheader("Modèle de prédiction")
 
 nb_classes = st.selectbox('Nb de classes prédites', list(models.keys()))
 
