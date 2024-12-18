@@ -53,12 +53,12 @@ def get_html_places() :
 def get_models() :
     models = {}
     models['4'] = {}
-    models['4']['catboost'] = load('D:/GIT/Notebooks/MachineLearning/1_ML_4_classes/2_grid_search_best_model/best_models/catboost_4_classes.gz')
-    models['4']['histgradientboost'] = load('D:/GIT/Notebooks/MachineLearning/1_ML_4_classes/2_grid_search_best_model/best_models/HistGradientBoosting_4_classes.gz')
+    models['4']['catboost'] = load('{}/../Notebooks/MachineLearning/1_ML_4_classes/2_grid_search_best_model/best_models/catboost_4_classes.gz'.format(path))
+    models['4']['histgradientboost'] = load('{}/..//Notebooks/MachineLearning/1_ML_4_classes/2_grid_search_best_model/best_models/HistGradientBoosting_4_classes.gz'.format(path))
 
     models['2'] = {}
-    models['2']['catboost'] = load('D:/GIT/Notebooks/MachineLearning/2_ML_2_classes/2_grid_search_best_model/best_models/catboost_2_classes.gz')
-    models['2']['xgboost'] = load('D:/GIT/Notebooks/MachineLearning/2_ML_2_classes/2_grid_search_best_model/best_models/xgboost_2_classes.gz')
+    models['2']['catboost'] = load('{}/..//Notebooks/MachineLearning/2_ML_2_classes/2_grid_search_best_model/best_models/catboost_2_classes.gz'.format(path))
+    models['2']['xgboost'] = load('{}/..//Notebooks/MachineLearning/2_ML_2_classes/2_grid_search_best_model/best_models/xgboost_2_classes.gz'.format(path))
 
     return models
 
