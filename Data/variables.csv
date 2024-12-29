@@ -30,3 +30,6 @@ locp;Localisation du piéton
 etatp;Piéton accidenté
 actp;Action du piéton
 obs;Obstacle fixe heurté
+vma;Vitesse Maximum Autorisée
+nbv;Nombre de véhicules
+mois;Mois
