@@ -292,3 +292,23 @@ actp;6;Avec animal
 actp;9;Autre
 actp;A;Monte/descend du véhicule
 actp;B;Inconnue
+classe_age;0;moins de 10 ans
+classe_age;1;10-17
+classe_age;2;18-24
+classe_age;3;25-44
+classe_age;4;45-64
+classe_age;5;65 et plus
+weekend;0;Semaine
+weekend;1;WeekEnd
+mois;1;Janvier
+mois;2;Février
+mois;3;Mars
+mois;4;Avril
+mois;5;Mai
+mois;6;Juin
+mois;7;Juillet
+mois;8;Août
+mois;9;Septembre
+mois;10;Octobre
+mois;11;Novembre
+mois;12;Décembre

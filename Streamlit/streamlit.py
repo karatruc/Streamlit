@@ -10,7 +10,8 @@ from st_click_detector import click_detector
 import numpy as np
 import datetime
 from catboost import CatBoostClassifier
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 import sys
 
 path = os.path.dirname(os.path.realpath(__file__))
@@ -70,6 +71,22 @@ def get_data() :
     df = pd.read_csv('{}/../Data/accidents.zip'.format(path))
     return df
 
+def plot(df, variable, normalize, dico_vars) :
+    palette = ['blue','green', 'orange','red']
+    fig = plt.figure(figsize=(10, 4))
+    df2plot = (df.groupby([variable,'grav'],observed=True).size()*100 / df.groupby(variable, observed=False).size()).reset_index(name='percent')
+    sns.barplot(data = df2plot, x=variable, y='percent', hue='grav', palette = palette)
+    plt.xlabel(dico_vars[variable]['variable'])
+    plt.ylabel('Pourcentage de victime par gravité')
+    plt.title('Répartition des gravités selon {}'.format(dico_vars[variable]['variable']));
+    #plt.xticks(ticks = range(0,6) ,labels = ['0-9','10-17','18-24','25-44','45-64','+65']);
+    value_keys = list(df[variable].unique())
+    value_keys.sort()
+   
+    values = [dico_vars[variable]['valeurs'][v] for v in value_keys]
+
+    plt.xticks(ticks = range(len(value_keys)),  labels = [dico_vars[variable]['valeurs'][v] for v in value_keys]);
+    st.pyplot(fig)
 
 tabExploration, tabPrevision = st.tabs(["Exploration", "Prévisions"])
 
@@ -86,6 +103,10 @@ with tabExploration :
     #new_vars = {'mois': {'variable':'Mois'}, 'nbv' : {'variable': 'Nombre de véhicules'}}
 
     var2plot = st.selectbox(label = 'variable', options = variables, format_func = lambda x : vars[x]['variable'])
+
+    if var2plot != None :
+        
+        plot(df_accidents, var2plot, True, vars) 
 
 
 

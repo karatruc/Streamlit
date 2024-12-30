@@ -33,3 +33,16 @@ obs;Obstacle fixe heurté
 vma;Vitesse Maximum Autorisée
 nbv;Nombre de véhicules
 mois;Mois
+secu_1;Ceinture
+secu_2;Casque
+secu_3;Dispositif enfants
+secu_4;Gilet Réfléchissant
+secu_5;Airbag
+secu_6;Gants
+secu_7;Gants + Airbag
+secu_8;Non determinable
+secu_9;Autre
+hh;heure
+weekend;weekend
+classe_age;Classe d'age
+
