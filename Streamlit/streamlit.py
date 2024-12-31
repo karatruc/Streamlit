@@ -19,7 +19,6 @@ sys.path.append(path)
 
 from Pipeline import *
 
-
 url_images = 'https://github.com/karatruc/Streamlit/blob/Streamlit/Streamlit/images'
 
 old_catv = ['04','05','06','08','09','11','12','18','19']
@@ -71,43 +70,70 @@ def get_data() :
     df = pd.read_csv('{}/../Data/accidents.zip'.format(path))
     return df
 
-def plot(df, variable, normalize, dico_vars) :
+def plot_cat(df, variable, normalize, dico_vars) :
     palette = ['blue','green', 'orange','red']
-    fig = plt.figure(figsize=(10, 4))
-    df2plot = (df.groupby([variable,'grav'],observed=True).size()*100 / df.groupby(variable, observed=False).size()).reset_index(name='percent')
-    sns.barplot(data = df2plot, x=variable, y='percent', hue='grav', palette = palette)
+    labels = ['Indemne','Blessé léger','Blessé Grave', 'Tué']
+    #fig = plt.figure(figsize=(10, 4))
+    fig, ax = plt.subplots()
+
+    if normalize :
+        df2plot = (df.groupby([variable,'grav'],observed=True).size()*100 / df.groupby(variable, observed=False).size()).reset_index(name='percent')
+        sns.barplot(data = df2plot, x=variable, y='percent', hue='grav', palette = palette)
+        
+        plt.ylabel('Pourcentages d\'usagers par gravité')
+    else :
+        df2plot=df[[variable, 'grav']]
+        sns.countplot(data=df2plot, x=variable, hue='grav', palette = palette)   
+        plt.ylabel('Nombres d\'usagers par gravité')     
+    
+    hands, labs = ax.get_legend_handles_labels()
+    plt.legend(title='Gravité', handles = hands, labels = labels, bbox_to_anchor=(1.35, 1))
     plt.xlabel(dico_vars[variable]['variable'])
-    plt.ylabel('Pourcentage de victime par gravité')
     plt.title('Répartition des gravités selon {}'.format(dico_vars[variable]['variable']));
-    #plt.xticks(ticks = range(0,6) ,labels = ['0-9','10-17','18-24','25-44','45-64','+65']);
+    
     value_keys = list(df[variable].unique())
     value_keys.sort()
    
     values = [dico_vars[variable]['valeurs'][v] for v in value_keys]
 
-    plt.xticks(ticks = range(len(value_keys)),  labels = [dico_vars[variable]['valeurs'][v] for v in value_keys]);
+    plt.xticks(ticks = range(len(value_keys)),  labels = [dico_vars[variable]['valeurs'][v] for v in value_keys], rotation = 80);
     st.pyplot(fig)
+
+def plot_num(df, variable, normalize, dico_vars) :
+    palette = ['blue','green', 'orange','red']
+
+    df2plot = (df.groupby([variable,'grav'],observed=True).count())
+    st.write(df2plot)
+
+    fig = plt.figure(figsize=(10, 4))
+
+    sns.lineplot(data=df2plot,x=variable,y='Count',palette=palette,hue='grav')
+    st.pyplot(fig)
+
+st.set_page_config(layout="wide")
 
 tabExploration, tabPrevision = st.tabs(["Exploration", "Prévisions"])
 
-html_places = get_html_places()
-vars = get_variables()
-models = get_models()
+with st.spinner('Chargements des données...') :
+    html_places = get_html_places()
+    vars = get_variables()
+    models = get_models()
 
-df_accidents = get_data()
+    df_accidents = get_data()
 
 with tabExploration :
     variables = list(df_accidents.columns)
-    variables = [v for v in variables if v not in ['lat','long']]
+    variables = [v for v in variables if v not in ['lat','long','nbv','vma']]
     
-    #new_vars = {'mois': {'variable':'Mois'}, 'nbv' : {'variable': 'Nombre de véhicules'}}
+    var2plot = st.selectbox(label = 'Variable', options = variables, format_func = lambda x : vars[x]['variable'] )
+    norm = st.toggle('Normalisation')
+    
+    with st.spinner('Tracage du graphique') :
 
-    var2plot = st.selectbox(label = 'variable', options = variables, format_func = lambda x : vars[x]['variable'])
-
-    if var2plot != None :
-        
-        plot(df_accidents, var2plot, True, vars) 
-
+        if var2plot in ['nbv','vma'] :
+            plot_num(df_accidents, var2plot, norm, vars)
+        else :
+            plot_cat(df_accidents, var2plot, norm, vars) 
 
 
 with tabPrevision :
