@@ -193,10 +193,10 @@ motor;6;Autre
 catu;1;Conducteur
 catu;2;Passager
 catu;3;Piéton
-grav;1;Indemne
-grav;2;Tué
-grav;3;Blessé hospitalisé
-grav;4;Blessé léger
+grav;0;Indemne
+grav;1;Blessé léger
+grav;2;Blessé hospitalisé
+grav;3;Tué
 sexe;1;Masculin
 sexe;2;Féminin
 trajet;-1;Non renseigné

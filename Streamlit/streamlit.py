@@ -91,7 +91,7 @@ def get_models() :
 def remove_NR( dico ) :
     """ Supprime les valeurs -1 du dictionn,aire des variables et valeurs
     """
-    return {i:v for i, v in dico.items() if i != '-1'}
+    return {i:v for i, v in dico.items() if i not in  ['-1',-1]}
 
 @st.cache_data(show_spinner=False)
 def get_data() :
@@ -199,6 +199,9 @@ def test_chi2(data_frame , var:str,var_cible:str):
         # V proche de 0.1 : Faible association.
         # V proche de 0.3 : Association modérée.
         # V proche de 0.5 et plus : Association forte
+
+def highlight_max(x, color):
+    return np.where(x == np.max(x.to_numpy()), f"color: {color};", None)
 
 tabExploration, tabGeolocalisation, tabPrevision = st.tabs(["Exploration","Géolocalisation", "Prévisions"])
 
@@ -313,14 +316,19 @@ with tabPrevision :
     model = st.selectbox('Modèle de prédiction', list(models[nb_classes].keys()))
 
 
+
     if st.button('Effectuer la prédiction') :
+
         m = models[nb_classes][model]
         x = pipe.transform(pd.DataFrame.from_dict({k:[v] for k, v in options.items()}))
 
         pred = m.predict_proba(x)
 
-        st.write(pred)
+        df_pred = pd.DataFrame(columns=vars['grav']['valeurs'].values(), data = pred)
+        
+        st.dataframe(df_pred.style.highlight_max(color = 'red', axis = 1).format('{:,.2%}'.format))
 
+    
 
 
 
