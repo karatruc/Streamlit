@@ -11,7 +11,6 @@ import numpy as np
 
 
 #chargements des variables
-@st.cache_data
 def get_variables(path) :
     """ récupères le dictionnaire contenant variables, libellés
     """
@@ -20,7 +19,6 @@ def get_variables(path) :
     return variables
 
 #chargements des images pour places 
-@st.cache_data(show_spinner=False)
 def get_html_places(path, url) :
     """ insere les images des places dans les fichiers html
     """
@@ -32,7 +30,6 @@ def get_html_places(path, url) :
     return cat_vehicule_html
 
 #chargements des modèles
-@st.cache_data(show_spinner=False)
 def get_models(path) :
     """ Récupère les modèles sauvegardés
     """
@@ -54,7 +51,7 @@ def remove_NR( dico ) :
     """
     return {i:v for i, v in dico.items() if i not in  ['-1',-1]}
 
-@st.cache_data(show_spinner=False)
+
 def get_data(path) :
     """ charge les données issues du preprocessing
     """

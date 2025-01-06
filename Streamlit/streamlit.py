@@ -36,8 +36,35 @@ with st.spinner ('Chargement des bibliothèques') :
     sys.path.append(thispath)
 
     from Pipeline import *
-    from Functions import *
+    import Functions
 
+#chargements des variables
+@st.cache_data
+def get_variables(path) :
+    return Functions.get_variables(path)
+
+@st.cache_data(show_spinner=False)
+def get_html_places(path, url) :
+    return Functions.get_html_places(path, url)
+
+@st.cache_data(show_spinner=False)
+def get_models(path) :
+    return Functions.get_models(path) 
+
+@st.cache_data(show_spinner=False)
+def get_data(path) :
+    return Functions.get_data(path)
+
+@st.cache_data(show_spinner=False)
+def get_geoloc_map(path) :
+    return Functions.get_geoloc_map(path)
+
+@st.cache_data()
+def plot_cat(df, variable, normalize, dico_vars) :
+    return Functions.plot_cat(df, variable, normalize, dico_vars)
+
+def model_predict(model, dict, pipeline, variables) :
+    return Functions.model_predict(model, dict, pipeline, variables) 
 
 #listes
 url_images = 'https://github.com/karatruc/Streamlit/blob/Streamlit/Streamlit/images'
@@ -88,7 +115,7 @@ with tabPrevision :
 
     st.subheader("Caractéristiques de l'accident", divider="gray")
     for k in [x for x in var_cara if x not in ['mois','jour']]:
-        vals = remove_NR(vars[k]['valeurs'])
+        vals = Functions.remove_NR(vars[k]['valeurs'])
         
         options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
 
@@ -127,7 +154,7 @@ with tabPrevision :
     #lieux
     st.subheader("Lieu de l'accident", divider="gray")
     for k in var_lieu :
-        vals = remove_NR(vars[k]['valeurs'])
+        vals = Functions.remove_NR(vars[k]['valeurs'])
         options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
 
     #options['nbv'] = st.number_input('Nombre de voies de circulation')
@@ -137,7 +164,7 @@ with tabPrevision :
     #vehicules
     st.subheader("Véhicule transportant la victime", divider="gray")
     for k in var_vehi :
-        vals = remove_NR(vars[k]['valeurs'])
+        vals = Functions.remove_NR(vars[k]['valeurs'])
         if k == 'catv' :
             vals = {x:vals[x] for x in vals.keys() if x not in old_catv}
         options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
@@ -145,7 +172,7 @@ with tabPrevision :
     # usagers
     st.subheader("Victime", divider="gray")
     for k in [x for x in var_usag if x not in ['place','age']] :
-        vals = remove_NR(vars[k]['valeurs'])
+        vals = Functions.remove_NR(vars[k]['valeurs'])
         options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
 
     options['an_nais'] = st.selectbox('Année de naissance', range(1900,2025), index = 100)
