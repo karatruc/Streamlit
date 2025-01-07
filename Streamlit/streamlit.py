@@ -38,33 +38,10 @@ with st.spinner ('Chargement des bibliothèques') :
     from Pipeline import *
     import Functions
 
-#chargements des variables
-@st.cache_data
-def get_variables(path) :
-    return Functions.get_variables(path)
-
-@st.cache_data(show_spinner=False)
-def get_html_places(path, url) :
-    return Functions.get_html_places(path, url)
-
-@st.cache_data(show_spinner=False)
-def get_models(path) :
-    return Functions.get_models(path) 
-
-@st.cache_data(show_spinner=False)
-def get_data(path) :
-    return Functions.get_data(path)
-
-@st.cache_data(show_spinner=False)
-def get_geoloc_map(path) :
-    return Functions.get_geoloc_map(path)
-
 @st.cache_data()
 def plot_cat(df, variable, normalize, dico_vars) :
     return Functions.plot_cat(df, variable, normalize, dico_vars)
 
-def model_predict(model, dict, pipeline, variables) :
-    return Functions.model_predict(model, dict, pipeline, variables) 
 
 #listes
 url_images = 'https://github.com/karatruc/Streamlit/blob/Streamlit/Streamlit/images'
@@ -81,17 +58,85 @@ var_lieu = ['catr','circ','vosp','prof','plan','surf','infra','situ']
 var_vehi = ['catv','obs', 'obsm','choc','manv','motor']
 
 with st.spinner('Chargements des données...') :
-    html_places = get_html_places(thispath, url_images)
-    vars = get_variables(thispath)
-    models = get_models(thispath)
-    df_accidents = get_data(thispath)
-    map = get_geoloc_map(thispath)
+    if 'html_places' not in st.session_state :
+        st.session_state['html_places'] = Functions.get_html_places(thispath, url_images)
+    
+    html_places = st.session_state['html_places']
+
+    if 'vars' not in st.session_state :
+        st.session_state['vars'] = Functions.get_variables(thispath)
+
+    vars = st.session_state['vars']
+
+    if 'models' not in st.session_state :
+        st.session_state['models'] = Functions.get_models(thispath)
+    
+    models = st.session_state['models']
+
+    if 'df_accidents' not in st.session_state :
+        st.session_state['df_accidents'] = Functions.get_data(thispath)
+    
+    df_accidents = st.session_state['df_accidents']
+    
+    if 'map' not in st.session_state :
+        st.session_state['map'] = Functions.get_geoloc_map(thispath)
+    
+    map = st.session_state['map']
 
 
 tabPreprocessing, tabExploration, tabGeolocalisation, tabML, tabNN, tabInterpretabilite,  tabPrevision = \
     st.tabs(["Preprocessing","Exploration","Géolocalisation", "Machine Learning","Réseaux de Neurones","Interprétabilité", "Prévisions"])
 
+with tabPreprocessing :
 
+    expPreprocessing_1 = st.expander("Fusion des fichiers..." )
+    expPreprocessing_1.write(
+        '''La première étape consiste à rassembler l'ensemble des fichiers : en effet pour chacune des quatre années de 2019 à 2023, quatre fichiers sont mis à disposition, respectivement les informations relatives à l'accident, les informations relatives au lieu de l'accident, les caractéristiques des véhicules concernés et enfin les caractéristiques des usagers.
+Les quatre fichiers de chaque nature ont donc été fusionnés, et enfin une Jointures des quatre fichiers issus de cette fusion a été réalisée.
+'''
+    )
+    
+
+    expPreprocessing_2 = st.expander("Nettoyage...")
+    expPreprocessing_2.write(
+        '''Nous avons choisi d'éliminer les variables pour lesquelles plus de 25 % des valeurs n'étaient pas renseignées.\n
+Nous avons éliminé également les lignes pour lesquelles la variable d'intérêt (la gravité des blessures) n'était pas renseignée.\n
+Nous avons supprimé des variables qui nous semblaient inutiles pour l'interprétation de prédiction par exemple l'adresse le numéro ou le type de voie, ou encore le département le sens de circulation etc.\n
+Après ces premiers traitements restaient environ 14 % de lignes pour lesquelles au moins une valeur n'était pas renseignée que nous avons choisi de supprimer.\n
+Restaient après ses premiers traitements 443 000 lignes.\n
+Après ce nettoyage l'ensemble des variables catégorielles a été recodées en entier.\n
+'''
+    )
+    
+    expPreprocessing_3 = st.expander("Recodage...")
+    expPreprocessing_3.write(
+        '''Les latitude et longitude ont été recodées avec le point décimales (plutôt que la virgule).\n
+Les variables relatives aux équipements de sécurité ont été recodées 
+(pour celles-ci nous avons choisi de créer une variable binaire par type d'équipement de sécurité)\n
+Du champ heures minutes n'a été conservé que l'heure.\n
+De la date de l'accident, nous n'avons conservé que la notion de week-end dans une variable binaire.\n
+À partir de l'année de naissance des usagers nous avons calculé l'âge au moment dans l'année de l'accident.\n
+Après ces traitements l'ensemble des variables catégorielles restantes a été recodées en entier.\n
+La variable d'intérêt a été reconnaissait du 0 à 3 de façon progressive avec la gravité.\n
+Après les premières modélisation, il nous a semblé judicieux de transformer la variable âge en classe d'âge.
+'''
+    )
+
+    expPreprocessing_4 = st.expander("Géolocalisation...")
+    expPreprocessing_4.write(
+        """
+Les coordonnées Latitude et longitude ont été transformées en cluster.\n
+Nous avons pour cela utiliser un algorithme de K-Moyennes, et avons opté pour 80 clusters.\n
+La localisation des cluster sur une carte nous a permis de detecter des erreurs de saisies des coordonnées.
+"""
+    )
+    expPreprocessing_5 = st.expander("Pipeline...")
+    expPreprocessing_5.write(
+        '''
+Les principales étapes de ce preprocessing ont été intégrées après coup dans un pipeline qui sera utilisé pour traiter les données en vue de prédiction.
+
+'''
+    )
 
 with tabExploration :
     variables = list(df_accidents.columns)
@@ -189,6 +234,8 @@ with tabPrevision :
 
     st.subheader("Modèle de prédiction")
 
+    
+
     nb_classes = st.selectbox('Nb de classes prédites', list(models.keys()))
 
     model = st.selectbox('Modèle de prédiction', list(models[nb_classes].keys()))
@@ -197,7 +244,8 @@ with tabPrevision :
 
         m = models[nb_classes][model]
         
-        df_pred = model_predict(m, options, pipe, vars)
+        
+        df_pred = Functions.model_predict(m, options, pipe, vars)
 
         st.dataframe(df_pred)
 

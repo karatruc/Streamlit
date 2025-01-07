@@ -58,7 +58,7 @@ def get_data(path) :
     df = pd.read_csv('{}/../Data/accidents.zip'.format(path))
     return df
 
-@st.cache_data(show_spinner=False)
+
 def get_geoloc_map(path) :
     """ Chargement du clustering de geolocalisation
     """
@@ -167,10 +167,16 @@ def model_predict(model, dict, pipeline, variables) :
 
     if model.__class__.__name__ == 'Sequential' :
         pred = model.predict(x)
-        
+        if pred.shape[1] == 1 :
+            pred =np.hstack((1-pred, pred))
     else :
         pred = model.predict_proba(x)
 
-    df_pred = pd.DataFrame(columns=variables['grav']['valeurs'].values(), data = pred).style.highlight_max(color = 'red', axis = 1).format('{:,.2%}'.format)
+    if pred.shape[1] == 2 :
+        columns = ['Gravité Faible', 'Gravité Importante']
+    else :
+        columns = variables['grav']['valeurs'].values()
+
+    df_pred = pd.DataFrame(columns=columns, data = pred).style.highlight_max(color = 'lightgreen', axis = 1).format('{:,.2%}'.format)
     
     return df_pred
