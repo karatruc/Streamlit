@@ -1,3 +1,4 @@
+import folium.map
 import streamlit as st
 from joblib import load
 import tensorflow as tf
@@ -8,6 +9,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import base64
+from io import BytesIO
+
+import branca.colormap as cm
+
+import math
+
+
 
 
 #chargements des variables
@@ -55,9 +64,16 @@ def remove_NR( dico ) :
 def get_data(path) :
     """ charge les données issues du preprocessing
     """
-    df = pd.read_csv('{}/../Data/accidents.zip'.format(path))
+    df = pd.read_csv('{}/../Data/accidents_geolocalises.zip'.format(path))
+
     return df
 
+def get_data_brutes(path) :
+    """ charge les données issues du preprocessing
+    """
+    df_brutes = df = pd.read_csv('{}/../Data/accidents_merge.zip'.format(path))
+
+    return df_brutes
 
 def get_geoloc_map(path) :
     """ Chargement du clustering de geolocalisation
@@ -76,6 +92,48 @@ def get_geoloc_map(path) :
                     ).add_to(map)
     
     return map
+
+def get_geoloc_map_pie(df, path) :
+    """ Chargement du clustering de geolocalisation
+    """
+    kmeans = load('{}/../Models/clustering_geoloc.joblib'.format(path))
+    centers = kmeans.cluster_centers_
+    labels = range(0,80)
+
+    map = folium.Map(location=[0,0], zoom_start=1)
+    
+    for label , center in zip(labels, centers) :
+        
+        local_deformation = math.cos(center[0] * math.pi / 180)
+
+        nb = len(df[df['geoloc'] == label ])
+
+        d = len(df.query('geoloc == {} and grav == 3'.format(label)))
+
+        colormap = cm.LinearColormap(colors=['green', 'red'], vmin=0, vmax=.15)
+
+        folium.Circle(
+            location = center,
+            #popup='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]),
+            popup='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, nb, d),
+            radius= nb * 2*  local_deformation,
+            color=colormap(d/nb),
+            fill=True,
+            fill_color=colormap(d/nb)
+        ).add_to(map)
+
+
+    return map
+
+def localisationLatLong(df, path) :
+    map = folium.Map(location=[0,0], zoom_start=1)
+
+    df['lat']= df['lat'].str.replace(',','.').astype('float')
+    df['long']= df['long'].str.replace(',','.').astype('float')
+
+    for lat, long in df[['lat','long']].iterrows() :
+        folium.Marker((lat,long)).add_to(map)
+
 
 def plot_cat(df, variable, normalize, dico_vars) :
     """ renvoi un barplot de la gravité en foicntion de la variable fournie
@@ -104,9 +162,14 @@ def plot_cat(df, variable, normalize, dico_vars) :
     value_keys = list(df[variable].unique())
     value_keys.sort()
     
-    values = [dico_vars[variable]['valeurs'][v] for v in value_keys]
+    #values = [dico_vars[variable]['valeurs'][v] for v in value_keys]
 
-    plt.xticks(ticks = range(len(value_keys)),  labels = [dico_vars[variable]['valeurs'][v] for v in value_keys], rotation = 80);
+    if 'valeurs' in dico_vars[variable] and len(dico_vars[variable]['valeurs']) > 0 :
+        labels = [dico_vars[variable]['valeurs'][v] for v in value_keys]
+    else :
+        labels = value_keys
+
+    plt.xticks(ticks = range(len(value_keys)),  labels = labels, rotation = 80);
     st.pyplot(fig)
     khi, cramer = test_chi2(df,variable,'grav')
     st.write(khi)
@@ -163,7 +226,7 @@ def highlight_max(x, color):
 
 def model_predict(model, dict, pipeline, variables) :
     x = pipeline.transform(pd.DataFrame.from_dict({k:[v] for k, v in dict.items()}))
-    st.write(x)
+    #st.write(x)
 
     if model.__class__.__name__ == 'Sequential' :
         pred = model.predict(x)
@@ -180,3 +243,40 @@ def model_predict(model, dict, pipeline, variables) :
     df_pred = pd.DataFrame(columns=columns, data = pred).style.highlight_max(color = 'lightgreen', axis = 1).format('{:,.2%}'.format)
     
     return df_pred
+
+def geoloc_chart(dframe, clust) :
+    palette = ['blue','green', 'orange','red']
+    fig = plt.figure(figsize=(2, 2))
+    fig.patch.set_alpha(0)
+    ax = fig.add_subplot(111)
+
+    df = dframe[dframe['geoloc'] == clust].groupby(['grav']).size().reset_index(name='Nombre')
+    #st.write(df)
+    
+    sns.barplot(data = df, x='grav', y='Nombre', palette = palette)
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
+    return image_base64
+
+def geoloc_pie(dframe, clust) :
+    palette = ['blue','green', 'orange','red']
+    fig, ax  = plt.subplots()
+    #fig.patch.set_alpha(0)
+
+    df = dframe[dframe['geoloc'] == clust].groupby(['grav']).size().reset_index(name='Nombre')
+    #st.write(df)
+    
+    ax.pie(data = df, x = 'Nombre', radius=len(dframe[dframe['geoloc'] == clust])/70000)
+
+     #sns.barplot(data = df, x='grav', y='Nombre', palette = palette)
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    plt.close(fig)
+    return image_base64

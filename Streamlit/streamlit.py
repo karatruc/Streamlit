@@ -44,7 +44,7 @@ def plot_cat(df, variable, normalize, dico_vars) :
 
 
 #listes
-url_images = 'https://github.com/karatruc/Streamlit/blob/Streamlit/Streamlit/images'
+url_images = 'https://github.com/karatruc/Streamlit/blob/main/Streamlit/images'
 
 
 old_catv = [int(i) for i in ['04','05','06','08','09','11','12','18','19']]
@@ -77,15 +77,27 @@ with st.spinner('Chargements des données...') :
         st.session_state['df_accidents'] = Functions.get_data(thispath)
     
     df_accidents = st.session_state['df_accidents']
+
+    if 'df_brutes' not in st.session_state :
+        st.session_state['df_brutes'] = Functions.get_data_brutes(thispath)
+    
+    df_brutes = st.session_state['df_brutes']
     
     if 'map' not in st.session_state :
         st.session_state['map'] = Functions.get_geoloc_map(thispath)
     
     map = st.session_state['map']
 
+    if 'map_pie' not in st.session_state :
+        st.session_state['map_pie'] = Functions.get_geoloc_map_pie(df_accidents, thispath)
+    
+    map_pie = st.session_state['map_pie']
 
-tabPreprocessing, tabExploration, tabGeolocalisation, tabML, tabNN, tabInterpretabilite,  tabPrevision = \
-    st.tabs(["Preprocessing","Exploration","Géolocalisation", "Machine Learning","Réseaux de Neurones","Interprétabilité", "Prévisions"])
+    #mapLatLong = Functions.localisationLatLong(df_brutes, thispath)
+
+
+tabPreprocessing, tabExploration, tabExplorationPreprocessing, tabGeolocalisation, tabML, tabNN, tabInterpretabilite,  tabPrevision = \
+    st.tabs(["Preprocessing","Exploration des données brutes","Exploration des données traitées", "Géolocalisation", "Machine Learning","Réseaux de Neurones","Interprétabilité", "Prévisions"])
 
 with tabPreprocessing :
 
@@ -139,8 +151,18 @@ Les principales étapes de ce preprocessing ont été intégrées après coup da
     )
 
 with tabExploration :
+    variablesBrutes = ['an_nais','dep']
+
+    varBrutes2plot = st.selectbox(label = 'Variable', options = variablesBrutes, format_func = lambda x : vars[x]['variable'] )
+    normBrutes = st.toggle('Normalisation des données')
+    
+    with st.spinner('Tracage du graphique') :
+        plot_cat(df_brutes, varBrutes2plot, normBrutes, vars) 
+
+
+with tabExplorationPreprocessing :
     variables = list(df_accidents.columns)
-    variables = [v for v in variables if v not in ['lat','long','nbv','vma','grav']]
+    variables = [v for v in variables if v not in ['lat','long','nbv','vma','grav','geoloc']]
     
     var2plot = st.selectbox(label = 'Variable', options = variables, format_func = lambda x : vars[x]['variable'] )
     norm = st.toggle('Normalisation')
@@ -149,7 +171,12 @@ with tabExploration :
         plot_cat(df_accidents, var2plot, norm, vars) 
 
 with tabGeolocalisation :
+    #f_map = st_folium(map, use_container_width=True)# width=725)
     f_map = st_folium(map, use_container_width=True)# width=725)
+
+    #f_map_pie = st_folium(map, use_container_width=True)# width=725)
+
+    #f_remap = st.folium(mapLatLong, use_container_width=True)
 
 with tabPrevision :
 
@@ -157,15 +184,21 @@ with tabPrevision :
     options = {}
 
     #caractéristiques
-
     st.subheader("Caractéristiques de l'accident", divider="gray")
+
+    col = 0
+    cols_cara = st.columns(2)
+
     for k in [x for x in var_cara if x not in ['mois','jour']]:
         vals = Functions.remove_NR(vars[k]['valeurs'])
         
-        options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        options[k] = cols_cara[col].selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        col = (col == 0) * 1
 
-    ddmmyyyy = st.date_input('Date de l\'accident')
-    hhmm = st.time_input('Heure de l\'accident')
+    ddmmyyyy = cols_cara[col].date_input('Date de l\'accident')
+    col = (col == 0) * 1
+    hhmm = cols_cara[col].time_input('Heure de l\'accident')
+    col = (col == 0) * 1
 
     options['jour'] = ddmmyyyy.strftime('%d')
     options['mois'] = ddmmyyyy.strftime('%m')
@@ -175,7 +208,7 @@ with tabPrevision :
 
 
     # map
-    map_cont = st.container(height=735, border=True)
+    map_cont = st.container(height=600, border=True)
     DEFAULT_LATITUDE = 46.3
     DEFAULT_LONGITUDE = 2.85
 
@@ -198,29 +231,45 @@ with tabPrevision :
 
     #lieux
     st.subheader("Lieu de l'accident", divider="gray")
+    cols_lieu = st.columns(2)
+    col = 0
     for k in var_lieu :
         vals = Functions.remove_NR(vars[k]['valeurs'])
-        options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        options[k] = cols_lieu[col].selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        col = (col == 0) * 1
 
     #options['nbv'] = st.number_input('Nombre de voies de circulation')
-    options['nbv'] = st.slider('Nombre de voies de circulation', min_value = 1, max_value = 12, value = 1, step = 1)
+    options['nbv'] = cols_lieu[col].slider('Nombre de voies de circulation', min_value = 1, max_value = 12, value = 1, step = 1)
+    col = (col == 0) * 1
 
-    options['vma'] = st.slider('Vitesse maximale autorisée', min_value = 10, max_value = 130, value = 50, step = 5)
+    options['vma'] = cols_lieu[col].slider('Vitesse maximale autorisée', min_value = 10, max_value = 130, value = 50, step = 5)
+    col = (col == 0) * 1
     #vehicules
+
+    
+
     st.subheader("Véhicule transportant la victime", divider="gray")
+    cols_vehi = st.columns(2)
+    col = 0
+
     for k in var_vehi :
         vals = Functions.remove_NR(vars[k]['valeurs'])
         if k == 'catv' :
             vals = {x:vals[x] for x in vals.keys() if x not in old_catv}
-        options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        options[k] = cols_vehi[col].selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        col = (col == 0) * 1
 
     # usagers
     st.subheader("Victime", divider="gray")
+
+    cols_usager = st.columns(2)
+    col = 0
     for k in [x for x in var_usag if x not in ['place','age']] :
         vals = Functions.remove_NR(vars[k]['valeurs'])
-        options[k] = st.selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
-
-    options['an_nais'] = st.selectbox('Année de naissance', range(1900,2025), index = 100)
+        options[k] = cols_usager[col].selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        col = (col == 0) * 1
+    options['an_nais'] = cols_usager[col].selectbox('Année de naissance', range(1900,2025), index = 100)
+    col = (col == 0) * 1
 
     if options['catv'] in catv_tc :
         content = html_places['tc']
@@ -234,33 +283,20 @@ with tabPrevision :
 
     st.subheader("Modèle de prédiction")
 
-    
+    cols_pred = st.columns(2)
 
-    nb_classes = st.selectbox('Nb de classes prédites', list(models.keys()))
+    nb_classes = cols_pred[0].selectbox('Nb de classes prédites', list(models.keys()))
 
-    model = st.selectbox('Modèle de prédiction', list(models[nb_classes].keys()))
+    model = cols_pred[1].selectbox('Modèle de prédiction', list(models[nb_classes].keys()))
 
     if st.button('Effectuer la prédiction') :
-
+        st.write(options)
         m = models[nb_classes][model]
-        
-        
+
         df_pred = Functions.model_predict(m, options, pipe, vars)
 
         st.dataframe(df_pred)
 
-        # x = pipe.transform(pd.DataFrame.from_dict({k:[v] for k, v in options.items()}))
-
-        # if model == 'Réseau de neurones' :
-        #     pred = m.predict(x)
-        #     st.write(pred)
-
-        # else :
-        #     pred = m.predict_proba(x)
-
-        # df_pred = pd.DataFrame(columns=vars['grav']['valeurs'].values(), data = pred)
-        
-        # st.dataframe(df_pred.style.highlight_max(color = 'red', axis = 1).format('{:,.2%}'.format))
 
     
 
