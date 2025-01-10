@@ -38,9 +38,16 @@ with st.spinner ('Chargement des bibliothèques') :
     from Pipeline import *
     import Functions
 
+    from DataML import DataML
+
 @st.cache_data()
 def plot_cat(df, variable, normalize, dico_vars) :
     return Functions.plot_cat(df, variable, normalize, dico_vars)
+
+@st.cache_data()
+def load_data_ml():
+    dataML = DataML()
+    return dataML
 
 
 #listes
@@ -92,6 +99,8 @@ with st.spinner('Chargements des données...') :
         st.session_state['map_pie'] = Functions.get_geoloc_map_pie(df_accidents, thispath)
     
     map_pie = st.session_state['map_pie']
+
+    dataML = load_data_ml()
 
     #mapLatLong = Functions.localisationLatLong(df_brutes, thispath)
 
@@ -297,6 +306,15 @@ with tabPrevision :
 
         st.dataframe(df_pred)
 
+
+with tabML:
+     import machinelearning as ml
+     ml.afficher(dataML,df_accidents)
+
+with tabInterpretabilite:
+    import interpretabilite as inter
+    inter.afficher_inter_4_classes(dataML)
+    inter.afficher_inter_2_classes(dataML)
 
     
 
