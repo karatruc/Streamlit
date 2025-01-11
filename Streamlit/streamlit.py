@@ -39,15 +39,33 @@ with st.spinner ('Chargement des bibliothèques') :
     import Functions
 
     from DataML import DataML
+    import machinelearning as ml
+    import interpretabilite as inter
 
-@st.cache_data()
-def plot_cat(df, variable, normalize, dico_vars) :
-    return Functions.plot_cat(df, variable, normalize, dico_vars)
+@st.cache_data(show_spinner = False)
+def plot_cat(df, variable, normalize, dico_vars, stacked) :
+    return Functions.plot_cat(df, variable, normalize, dico_vars, stacked)
 
-@st.cache_data()
-def load_data_ml():
-    dataML = DataML()
-    return dataML
+@st.cache_data(show_spinner = False)
+def plot_cat_old_data(df, variable, normalize, dico_vars) :
+    return Functions.plot_cat_old_data(df, variable, normalize, dico_vars)
+
+st.cache_data()
+def afficher_inter_4_classes(data) :
+    return inter.afficher_inter_4_classes(data)
+
+st.cache_data()
+def afficher_inter_2_classes(data) :
+    return inter.afficher_inter_2_classes(data)
+
+st.cache_data()
+def afficher(data,df) :
+    return ml.afficher(data,df)
+
+# @st.cache_data(show_spinner = False)
+# def load_data_ml():
+#     dataML = DataML()
+#     return dataML
 
 
 #listes
@@ -65,6 +83,8 @@ var_lieu = ['catr','circ','vosp','prof','plan','surf','infra','situ']
 var_vehi = ['catv','obs', 'obsm','choc','manv','motor']
 
 with st.spinner('Chargements des données...') :
+
+    print('###############chargement donnéees')
     if 'html_places' not in st.session_state :
         st.session_state['html_places'] = Functions.get_html_places(thispath, url_images)
     
@@ -100,8 +120,12 @@ with st.spinner('Chargements des données...') :
     
     map_pie = st.session_state['map_pie']
 
-    dataML = load_data_ml()
+    if 'dataML' not in st.session_state :    
+        st.session_state['dataML'] = DataML()
 
+    dataML = st.session_state['dataML']
+
+    
     #mapLatLong = Functions.localisationLatLong(df_brutes, thispath)
 
 
@@ -109,7 +133,7 @@ tabPreprocessing, tabExploration, tabExplorationPreprocessing, tabGeolocalisatio
     st.tabs(["Preprocessing","Exploration des données brutes","Exploration des données traitées", "Géolocalisation", "Machine Learning","Réseaux de Neurones","Interprétabilité", "Prévisions"])
 
 with tabPreprocessing :
-
+    print('###############preprocessing')
     expPreprocessing_1 = st.expander("Fusion des fichiers..." )
     expPreprocessing_1.write(
         '''La première étape consiste à rassembler l'ensemble des fichiers : en effet pour chacune des quatre années de 2019 à 2023, quatre fichiers sont mis à disposition, respectivement les informations relatives à l'accident, les informations relatives au lieu de l'accident, les caractéristiques des véhicules concernés et enfin les caractéristiques des usagers.
@@ -162,24 +186,30 @@ Les principales étapes de ce preprocessing ont été intégrées après coup da
 with tabExploration :
     variablesBrutes = ['an_nais','dep']
 
-    varBrutes2plot = st.selectbox(label = 'Variable', options = variablesBrutes, format_func = lambda x : vars[x]['variable'] )
-    normBrutes = st.toggle('Normalisation des données')
-    
+    colExp21, colExp22, colExp23 = st.columns(3)
+
+    varBrutes2plot = colExp21.selectbox(label = 'Variable', options = variablesBrutes, format_func = lambda x : vars[x]['variable'] )
+    normBrutes = colExp22.toggle('Normalisation', key='norm1')
+    stackedBrutes = colExp23.toggle('Données Empilées', key='stacked1')
     with st.spinner('Tracage du graphique') :
-        plot_cat(df_brutes, varBrutes2plot, normBrutes, vars) 
+        plot_cat(df_brutes, varBrutes2plot, normBrutes, vars, stackedBrutes) 
 
 
 with tabExplorationPreprocessing :
+    
     variables = list(df_accidents.columns)
     variables = [v for v in variables if v not in ['lat','long','nbv','vma','grav','geoloc']]
     
-    var2plot = st.selectbox(label = 'Variable', options = variables, format_func = lambda x : vars[x]['variable'] )
-    norm = st.toggle('Normalisation')
-    
+    colExp11, colExp12, colExp13 = st.columns(3)
+
+    var2plot = colExp11.selectbox(label = 'Variable', options = variables, format_func = lambda x : vars[x]['variable'], label_visibility = 'hidden' )
+    norm = colExp12.toggle('Normalisation', key = 'norm2')
+    stacked = colExp13.toggle('Données Empilées', key = 'stacked2')
     with st.spinner('Tracage du graphique') :
-        plot_cat(df_accidents, var2plot, norm, vars) 
+        plot_cat(df_accidents, var2plot, norm, vars, stacked) 
 
 with tabGeolocalisation :
+    print('###############geolocalisation')
     #f_map = st_folium(map, use_container_width=True)# width=725)
     f_map = st_folium(map, use_container_width=True)# width=725)
 
@@ -188,10 +218,16 @@ with tabGeolocalisation :
     #f_remap = st.folium(mapLatLong, use_container_width=True)
 
 with tabPrevision :
-
+    
     # génère le formulaire : une liste de choix par variable
     options = {}
 
+    cas = st.radio("Préremplissage", ["aucun",'pas grave', 'grave'])
+    default_options = {"lum":1,"agg":1,"int":1,"atm":1,"col":1,"jour":"11","mois":"01","an":"2025","hrmn":"1637","lat":47.57652571374621,"long":2.4169921875000004,"catr":1,"circ":1,"vosp":0,"prof":1,"plan":1,"surf":1,"infra":0,"situ":1,"nbv":1,"vma":50,"catv":0,"obs":0,"obsm":0,"choc":0,"manv":0,"motor":0,"catu":1,"sexe":1,"trajet":0,"secu1":0,"secu2":0,"secu3":0,"an_nais":2000,"place":"1"}
+    if cas == 'grave' :
+        default_options = {"lum":3,"agg":1,"int":2,"atm":1,"col":1,"jour":"11","mois":"01","an":"2025","hrmn":"1623","lat":46.66451741754238,"long":1.9775390625000002,"catr":3,"circ":2,"vosp":0,"prof":1,"plan":4,"surf":2,"infra":0,"situ":1,"nbv":2,"vma":130,"catv":33,"obs":0,"obsm":2,"choc":3,"manv":0,"motor":0,"catu":1,"sexe":1,"trajet":0,"secu1":0,"secu2":0,"secu3":0,"an_nais":2000,"place":"1"}
+    if cas == 'pas grave' :
+        default_options = {"lum":1,"agg":2,"int":9,"atm":1,"col":7,"jour":"11","mois":"01","an":"2025","hrmn":"1637","lat":47.57652571374621,"long":2.4169921875000004,"catr":7,"circ":1,"vosp":0,"prof":1,"plan":1,"surf":1,"infra":0,"situ":1,"nbv":1,"vma":30,"catv":7,"obs":1,"obsm":0,"choc":2,"manv":0,"motor":1,"catu":1,"sexe":2,"trajet":0,"secu1":5,"secu2":1,"secu3":0,"an_nais":2000,"place":"8"}
     #caractéristiques
     st.subheader("Caractéristiques de l'accident", divider="gray")
 
@@ -201,7 +237,11 @@ with tabPrevision :
     for k in [x for x in var_cara if x not in ['mois','jour']]:
         vals = Functions.remove_NR(vars[k]['valeurs'])
         
-        options[k] = cols_cara[col].selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        options[k] = cols_cara[col].selectbox(key = k, 
+                                              label = vars[k]['variable'], 
+                                              options = list(vals.keys()), 
+                                              format_func = lambda x : vals[x], 
+                                              index = list(vals.keys()).index(default_options[k]) )
         col = (col == 0) * 1
 
     ddmmyyyy = cols_cara[col].date_input('Date de l\'accident')
@@ -218,8 +258,8 @@ with tabPrevision :
 
     # map
     map_cont = st.container(height=600, border=True)
-    DEFAULT_LATITUDE = 46.3
-    DEFAULT_LONGITUDE = 2.85
+    DEFAULT_LATITUDE = default_options['lat']#46.3
+    DEFAULT_LONGITUDE = default_options['long']#2.85
 
     with map_cont:
         m = folium.Map(location=[DEFAULT_LATITUDE, DEFAULT_LONGITUDE], zoom_start=6)
@@ -235,8 +275,8 @@ with tabPrevision :
         options['lat'] = f_map["last_clicked"]["lat"]
         options['long'] = f_map["last_clicked"]["lng"]
 
-        st.write("latitude : {}".format(options['lat']))
-        st.write("longitude : {}".format(options['long']))
+    st.write("latitude : {}".format(options['lat']))
+    st.write("longitude : {}".format(options['long']))
 
     #lieux
     st.subheader("Lieu de l'accident", divider="gray")
@@ -244,14 +284,18 @@ with tabPrevision :
     col = 0
     for k in var_lieu :
         vals = Functions.remove_NR(vars[k]['valeurs'])
-        options[k] = cols_lieu[col].selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        options[k] = cols_lieu[col].selectbox(key = k, 
+                                              label = vars[k]['variable'], 
+                                              options = list(vals.keys()), 
+                                              format_func = lambda x : vals[x], 
+                                              index = list(vals.keys()).index(default_options[k]) )
         col = (col == 0) * 1
 
     #options['nbv'] = st.number_input('Nombre de voies de circulation')
-    options['nbv'] = cols_lieu[col].slider('Nombre de voies de circulation', min_value = 1, max_value = 12, value = 1, step = 1)
+    options['nbv'] = cols_lieu[col].slider('Nombre de voies de circulation', min_value = 1, max_value = 12,  step = 1, value = default_options['nbv'] )
     col = (col == 0) * 1
 
-    options['vma'] = cols_lieu[col].slider('Vitesse maximale autorisée', min_value = 10, max_value = 130, value = 50, step = 5)
+    options['vma'] = cols_lieu[col].slider('Vitesse maximale autorisée', min_value = 10, max_value = 130,  step = 5, value = default_options['vma'])
     col = (col == 0) * 1
     #vehicules
 
@@ -265,7 +309,11 @@ with tabPrevision :
         vals = Functions.remove_NR(vars[k]['valeurs'])
         if k == 'catv' :
             vals = {x:vals[x] for x in vals.keys() if x not in old_catv}
-        options[k] = cols_vehi[col].selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        options[k] = cols_vehi[col].selectbox(key = k, 
+                                              label = vars[k]['variable'], 
+                                              options = list(vals.keys()), 
+                                              format_func = lambda x : vals[x] , 
+                                              index = list(vals.keys()).index(default_options[k]) )
         col = (col == 0) * 1
 
     # usagers
@@ -275,7 +323,11 @@ with tabPrevision :
     col = 0
     for k in [x for x in var_usag if x not in ['place','age']] :
         vals = Functions.remove_NR(vars[k]['valeurs'])
-        options[k] = cols_usager[col].selectbox(key = k, label = vars[k]['variable'], options = list(vals.keys()), format_func = lambda x : vals[x] )
+        options[k] = cols_usager[col].selectbox(key = k, 
+                                                label = vars[k]['variable'], 
+                                                options = list(vals.keys()), 
+                                                format_func = lambda x : vals[x], 
+                                                index = list(vals.keys()).index(default_options[k]) )
         col = (col == 0) * 1
     options['an_nais'] = cols_usager[col].selectbox('Année de naissance', range(1900,2025), index = 100)
     col = (col == 0) * 1
@@ -287,7 +339,12 @@ with tabPrevision :
     else  :
         content = html_places['car']
 
+    #options['place'] = default_options['place']
     options['place'] = click_detector(content)
+
+    if options['place'] == "" :
+        options['place'] = default_options['place']
+
     st.write("place : {}".format(options['place']))
 
     st.subheader("Modèle de prédiction")
@@ -299,7 +356,7 @@ with tabPrevision :
     model = cols_pred[1].selectbox('Modèle de prédiction', list(models[nb_classes].keys()))
 
     if st.button('Effectuer la prédiction') :
-        st.write(options)
+        
         m = models[nb_classes][model]
 
         df_pred = Functions.model_predict(m, options, pipe, vars)
@@ -308,16 +365,38 @@ with tabPrevision :
 
 
 with tabML:
-     import machinelearning as ml
-     ml.afficher(dataML,df_accidents)
+    
+    #import machinelearning as ml
+    #ml.afficher(dataML,df_accidents)
+    afficher(dataML,df_accidents)
 
 with tabInterpretabilite:
-    import interpretabilite as inter
-    inter.afficher_inter_4_classes(dataML)
-    inter.afficher_inter_2_classes(dataML)
+    
+    #import interpretabilite as inter
+    afficher_inter_4_classes(dataML)
+    afficher_inter_2_classes(dataML)
+    #inter.afficher_inter_4_classes(dataML)
+    #inter.afficher_inter_2_classes(dataML)
 
     
+with tabNN:
+    print('###############NN')
+    image1_path = os.path.join(thispath, "./images/img1.jpg")
+    image2_path = os.path.join(thispath, "./images/img2.jpg")
+    
+    st.subheader("Réseaux de Neurones", divider="gray")
 
+    st.subheader("Visualisation des Réseaux de Neurones")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("### Réseaux de Neurones 4 classes")
+        st.image(image1_path, caption="Première Image", use_container_width=True)  
+
+    with col2:
+        st.markdown("### Réseaux de Neurones 2 classes")
+        st.image(image2_path, caption="Seconde Image", use_container_width=True)
 
 
 

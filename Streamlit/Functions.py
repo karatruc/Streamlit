@@ -16,9 +16,6 @@ import branca.colormap as cm
 
 import math
 
-
-
-
 #chargements des variables
 def get_variables(path) :
     """ récupères le dictionnaire contenant variables, libellés
@@ -71,9 +68,30 @@ def get_data(path) :
 def get_data_brutes(path) :
     """ charge les données issues du preprocessing
     """
-    df_brutes = df = pd.read_csv('{}/../Data/accidents_merge.zip'.format(path))
+    df =  pd.read_csv('{}/../Data/accidents_merge.zip'.format(path))
+    df = df.replace({
+    '-1':np.nan,
+    -1:np.nan,
+    ' -1':np.nan,
+    '#ERREUR':np.nan
+    })
 
-    return df_brutes
+    df = df.dropna(subset=['grav'])
+
+    df['lat']= df['lat'].str.replace(',','.').astype('float')
+    df['long']= df['long'].str.replace(',','.').astype('float')
+
+    df['grav']=df['grav'].replace({1:0})
+    df['grav']=df['grav'].replace({4:1})
+
+    df['grav']=df['grav'].replace({3:5})
+    df['grav']=df['grav'].replace({2:3})
+    df['grav']=df['grav'].replace({5:2})
+
+    df = df.dropna(subset='an_nais')
+    df['an_nais'] = df['an_nais'].astype('int')
+
+    return df
 
 def get_geoloc_map(path) :
     """ Chargement du clustering de geolocalisation
@@ -135,27 +153,33 @@ def localisationLatLong(df, path) :
         folium.Marker((lat,long)).add_to(map)
 
 
-def plot_cat(df, variable, normalize, dico_vars) :
+def plot_cat(df, variable, normalize, dico_vars, stacked) :
     """ renvoi un barplot de la gravité en foicntion de la variable fournie
     """
     palette = ['blue','green', 'orange','red']
     labels = ['Indemne','Blessé léger','Blessé Grave', 'Tué']
-    
+    sns.set_palette(palette)
+
     fig, ax = plt.subplots(figsize=(12, 5) )
     
     if normalize :
-        df2plot = (df.groupby([variable,'grav'],observed=True).size()*100 / df.groupby(variable, observed=False).size()).reset_index(name='percent')
-        sns.barplot(data = df2plot, x=variable, y='percent', hue='grav', palette = palette)
-        
+        #df2plot = (df.groupby([variable,'grav'],observed=True).size()*100 / df.groupby(variable, observed=False).size()).reset_index(name='percent')
+        #sns.barplot(data = df2plot, x=variable, y='percent', hue='grav', palette = palette)
+        df2plot = (df.groupby([variable, 'grav']).size() / df.groupby(variable, observed=False).size()).reset_index().pivot(columns='grav', index=variable, values=0)
+        df2plot.plot(kind='bar', stacked=stacked, width = .8, ax = ax)
         plt.ylabel('Pourcentages d\'usagers par gravité')
     else :
-        df2plot=df[[variable, 'grav']]
-        sns.countplot(data=df2plot, x=variable, hue='grav', palette = palette)   
+        #df2plot=df[[variable, 'grav']]
+        #sns.countplot(data=df2plot, x=variable, hue='grav', palette = palette)   
+        df2plot = df.groupby([variable, 'grav']).size().reset_index().pivot(columns='grav', index=variable, values=0)
+        
+        df2plot.plot(kind='bar', stacked=stacked, width = .8, ax = ax)
         plt.ylabel('Nombres d\'usagers par gravité')     
     
     hands, labs = ax.get_legend_handles_labels()
 
-    plt.legend(title='Gravité', handles = hands, labels = labels, bbox_to_anchor=(1.35, 1))
+    #plt.legend(title='Gravité', handles = hands, labels = labels, bbox_to_anchor=(1.35, 1))
+    plt.legend(title='Gravité',  handles = hands, labels = labels, bbox_to_anchor=(1.35, 1))
     plt.xlabel(dico_vars[variable]['variable'])
     plt.title('Répartition des gravités selon {}'.format(dico_vars[variable]['variable']));
     
@@ -169,22 +193,16 @@ def plot_cat(df, variable, normalize, dico_vars) :
     else :
         labels = value_keys
 
-    plt.xticks(ticks = range(len(value_keys)),  labels = labels, rotation = 80);
+    if len(labels) > 20 :
+        r = np.arange(0,len(labels), math.floor(len(labels)/20))
+        plt.xticks(ticks = r,  labels = [x for x in labels if labels.index(x) in r], rotation = 80);
+    else :
+        plt.xticks(ticks = range(len(value_keys)),  labels = labels, rotation = 80);
     st.pyplot(fig)
     khi, cramer = test_chi2(df,variable,'grav')
     st.write(khi)
     st.write(cramer)
 
-def plot_num(df, variable, normalize, dico_vars) :
-    palette = ['blue','green', 'orange','red']
-
-    df2plot = (df.groupby([variable,'grav'],observed=True).count())
-    st.write(df2plot)
-
-    fig = plt.figure(figsize=(10, 4))
-
-    sns.lineplot(data=df2plot,x=variable,y='Count',palette=palette,hue='grav')
-    st.pyplot(fig)
 
 def test_chi2(data_frame , var:str,var_cible:str):
     
