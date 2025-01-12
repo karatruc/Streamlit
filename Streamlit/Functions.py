@@ -105,52 +105,54 @@ def get_geoloc_map(path) :
     for label , center in zip(labels, centers) :
         folium.Marker(center, 
                     popup = folium.map.Popup(label, parse_html=True),
-                    tooltip= folium.map.Tooltip(permanent=True, text='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]), sticky=False),
+                    tooltip= folium.map.Tooltip(permanent=True, text='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]), sticky=False)
                     
                     ).add_to(map)
-    
+        print('<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]))
     return map
 
-def get_geoloc_map_pie(df, path) :
-    """ Chargement du clustering de geolocalisation
-    """
-    kmeans = load('{}/../Models/clustering_geoloc.joblib'.format(path))
-    centers = kmeans.cluster_centers_
-    labels = range(0,80)
 
-    map = folium.Map(location=[0,0], zoom_start=1)
+
+# def get_geoloc_map_pie(df, path) :
+#     """ Chargement du clustering de geolocalisation
+#     """
+#     kmeans = load('{}/../Models/clustering_geoloc.joblib'.format(path))
+#     centers = kmeans.cluster_centers_
+#     labels = range(0,80)
+
+#     map = folium.Map(location=[0,0], zoom_start=1)
     
-    for label , center in zip(labels, centers) :
+#     for label , center in zip(labels, centers) :
         
-        local_deformation = math.cos(center[0] * math.pi / 180)
+#         local_deformation = math.cos(center[0] * math.pi / 180)
 
-        nb = len(df[df['geoloc'] == label ])
+#         nb = len(df[df['geoloc'] == label ])
 
-        d = len(df.query('geoloc == {} and grav == 3'.format(label)))
+#         d = len(df.query('geoloc == {} and grav == 3'.format(label)))
 
-        colormap = cm.LinearColormap(colors=['green', 'red'], vmin=0, vmax=.15)
+#         colormap = cm.LinearColormap(colors=['green', 'red'], vmin=0, vmax=.15)
 
-        folium.Circle(
-            location = center,
-            #popup='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]),
-            popup='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, nb, d),
-            radius= nb * 2*  local_deformation,
-            color=colormap(d/nb),
-            fill=True,
-            fill_color=colormap(d/nb)
-        ).add_to(map)
+#         folium.Circle(
+#             location = center,
+#             #popup='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]),
+#             popup='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, nb, d),
+#             radius= nb * 2*  local_deformation,
+#             color=colormap(d/nb),
+#             fill=True,
+#             fill_color=colormap(d/nb)
+#         ).add_to(map)
 
 
-    return map
+#     return map
 
-def localisationLatLong(df, path) :
-    map = folium.Map(location=[0,0], zoom_start=1)
+# def localisationLatLong(df, path) :
+#     map = folium.Map(location=[0,0], zoom_start=1)
 
-    df['lat']= df['lat'].str.replace(',','.').astype('float')
-    df['long']= df['long'].str.replace(',','.').astype('float')
+#     df['lat']= df['lat'].str.replace(',','.').astype('float')
+#     df['long']= df['long'].str.replace(',','.').astype('float')
 
-    for lat, long in df[['lat','long']].iterrows() :
-        folium.Marker((lat,long)).add_to(map)
+#     for lat, long in df[['lat','long']].iterrows() :
+#         folium.Marker((lat,long)).add_to(map)
 
 
 def plot_cat(df, variable, normalize, dico_vars, stacked) :

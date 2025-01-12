@@ -115,10 +115,10 @@ with st.spinner('Chargements des données...') :
     
     map = st.session_state['map']
 
-    if 'map_pie' not in st.session_state :
-        st.session_state['map_pie'] = Functions.get_geoloc_map_pie(df_accidents, thispath)
+    # if 'map_pie' not in st.session_state :
+    #     st.session_state['map_pie'] = Functions.get_geoloc_map_pie(df_accidents, thispath)
     
-    map_pie = st.session_state['map_pie']
+    #map_pie = st.session_state['map_pie']
 
     if 'dataML' not in st.session_state :    
         st.session_state['dataML'] = DataML()
@@ -126,59 +126,65 @@ with st.spinner('Chargements des données...') :
     dataML = st.session_state['dataML']
 
     
+    
     #mapLatLong = Functions.localisationLatLong(df_brutes, thispath)
 
 
 tabPreprocessing, tabExploration, tabExplorationPreprocessing, tabGeolocalisation, tabML, tabNN, tabInterpretabilite,  tabPrevision = \
-    st.tabs(["Preprocessing","Exploration des données brutes","Exploration des données traitées", "Géolocalisation", "Machine Learning","Réseaux de Neurones","Interprétabilité", "Prévisions"])
+    st.tabs(["Preprocessing","Exploration ( données brutes )","Exploration ( données traitées )", "Géolocalisation", "Machine Learning","Réseaux de Neurones","Interprétabilité", "Prévisions"])
 
 with tabPreprocessing :
-    print('###############preprocessing')
     expPreprocessing_1 = st.expander("Fusion des fichiers..." )
-    expPreprocessing_1.write(
-        '''La première étape consiste à rassembler l'ensemble des fichiers : en effet pour chacune des quatre années de 2019 à 2023, quatre fichiers sont mis à disposition, respectivement les informations relatives à l'accident, les informations relatives au lieu de l'accident, les caractéristiques des véhicules concernés et enfin les caractéristiques des usagers.
-Les quatre fichiers de chaque nature ont donc été fusionnés, et enfin une Jointures des quatre fichiers issus de cette fusion a été réalisée.
-'''
+    expPreprocessing_1.image('{}/images/jointure.png'.format(thispath)   
     )
     
-
     expPreprocessing_2 = st.expander("Nettoyage...")
     expPreprocessing_2.write(
-        '''Nous avons choisi d'éliminer les variables pour lesquelles plus de 25 % des valeurs n'étaient pas renseignées.\n
-Nous avons éliminé également les lignes pour lesquelles la variable d'intérêt (la gravité des blessures) n'était pas renseignée.\n
-Nous avons supprimé des variables qui nous semblaient inutiles pour l'interprétation de prédiction par exemple l'adresse le numéro ou le type de voie, ou encore le département le sens de circulation etc.\n
-Après ces premiers traitements restaient environ 14 % de lignes pour lesquelles au moins une valeur n'était pas renseignée que nous avons choisi de supprimer.\n
-Restaient après ses premiers traitements 443 000 lignes.\n
-Après ce nettoyage l'ensemble des variables catégorielles a été recodées en entier.\n
+        '''- Suppression des variables pour lesquelles plus de 25 % des valeurs n'étaient pas renseignées.\n
+- Suppression des lignes pour lesquelles sans variable d'intérêt (la gravité des blessures).\n
+- Suppression des variables difficlement interprétables ( l'adresse,le numéro ou le type de voie, ou encore le département, le sens de circulation, etc.\n
+- Suppression de 14 % de lignes pour lesquelles au moins une valeur n'était pas renseignée.\n
+- Le jeu de données contient après ce nettoyage environ 443 000 enregistrements.\n
+
 '''
     )
     
     expPreprocessing_3 = st.expander("Recodage...")
     expPreprocessing_3.write(
-        '''Les latitude et longitude ont été recodées avec le point décimales (plutôt que la virgule).\n
-Les variables relatives aux équipements de sécurité ont été recodées 
-(pour celles-ci nous avons choisi de créer une variable binaire par type d'équipement de sécurité)\n
-Du champ heures minutes n'a été conservé que l'heure.\n
-De la date de l'accident, nous n'avons conservé que la notion de week-end dans une variable binaire.\n
-À partir de l'année de naissance des usagers nous avons calculé l'âge au moment dans l'année de l'accident.\n
-Après ces traitements l'ensemble des variables catégorielles restantes a été recodées en entier.\n
-La variable d'intérêt a été reconnaissait du 0 à 3 de façon progressive avec la gravité.\n
-Après les premières modélisation, il nous a semblé judicieux de transformer la variable âge en classe d'âge.
+        '''- Recodage des latitude et longitude (séparateur décimal).\n
+- Recodage des variables relatives aux équipements de sécurité ont été recodées 
+(Une variable binaire par type d'équipement)\n
+- Du champ heures minutes n'a été conservé que l'heure.\n
+- De la date de l'accident, nous n'avons conservé que la notion de week-end dans une variable binaire.\n
+- À partir de l'année de naissance des usagers nous avons calculé l'âge au moment dans l'année de l'accident.\n
+- Après ces traitements l'ensemble des variables catégorielles restantes a été recodées en entier.\n
+- La variable d'intérêt a été recodée de 0 à 3 de façon progressive avec la gravité.\n
+- Après les premières modélisation, il nous a semblé judicieux de transformer la variable âge en classe d'âge.
 '''
     )
 
     expPreprocessing_4 = st.expander("Géolocalisation...")
     expPreprocessing_4.write(
         """
-Les coordonnées Latitude et longitude ont été transformées en cluster.\n
+- Les coordonnées Latitude et longitude ont été transformées en cluster.\n
 Nous avons pour cela utiliser un algorithme de K-Moyennes, et avons opté pour 80 clusters.\n
-La localisation des cluster sur une carte nous a permis de detecter des erreurs de saisies des coordonnées.
-"""
-    )
+La localisation des clusters sur une carte nous a permis de detecter des erreurs de saisies des coordonnées.
+""")
+
+    expPreprocessing_6 = st.expander("Binarisation et standardisation...")
+    expPreprocessing_6.write(
+        """
+- L'ensemble des variables catégorielles a été recodé en variable binaire (OneHotEncoder)
+- Les variables numériques ont été standardisées (StandardScaler)
+""")
+
+    expPreprocessing_7 = st.expander("Séparation du jeu de données")
+    expPreprocessing_7.image('{}/images/split.png'.format(thispath)   )
+                              
     expPreprocessing_5 = st.expander("Pipeline...")
     expPreprocessing_5.write(
         '''
-Les principales étapes de ce preprocessing ont été intégrées après coup dans un pipeline qui sera utilisé pour traiter les données en vue de prédiction.
+Les principales étapes de ce preprocessing ont été intégrées dans un pipeline qui sera utilisé pour traiter les données en vue de prédiction.
 
 '''
     )
@@ -209,9 +215,16 @@ with tabExplorationPreprocessing :
         plot_cat(df_accidents, var2plot, norm, vars, stacked) 
 
 with tabGeolocalisation :
-    print('###############geolocalisation')
+    
+    with st.expander('Localisations tués et blessés graves en France') :
+        st.image('{}/images/map_monde.png'.format(thispath))
+
+    with st.expander('Localisations tués et blessés graves en métropole', expanded = False) :
+        st.image('{}/images/map_france.png'.format(thispath))
+
+    with st.expander('Localisations des clusters', expanded = False) :
     #f_map = st_folium(map, use_container_width=True)# width=725)
-    f_map = st_folium(map, use_container_width=True)# width=725)
+        f_map = st_folium(map, use_container_width=True)# width=725)
 
     #f_map_pie = st_folium(map, use_container_width=True)# width=725)
 
