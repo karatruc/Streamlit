@@ -104,11 +104,11 @@ def get_geoloc_map(path) :
 
     for label , center in zip(labels, centers) :
         folium.Marker(center, 
-                    popup = folium.map.Popup(label, parse_html=True),
-                    tooltip= folium.map.Tooltip(permanent=True, text='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]), sticky=False)
+                    #popup = folium.map.Popup(label, parse_html=True),
+                    #tooltip= folium.map.Tooltip(permanent=True, text='<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]), sticky=False)
                     
                     ).add_to(map)
-        print('<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]))
+        #print('<b>{}</b><br/>({:.2f}/{:.2f})'.format(label, center[0], center[1]))
     return map
 
 

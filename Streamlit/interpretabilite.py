@@ -11,14 +11,16 @@ import os
 thispath = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(thispath)
 
-
-def afficher_inter_4_classes(dataML: DataML):
+st.cache_data()
+def afficher_inter_4_classes(dataML: DataML, df):
     with st.expander("**Interpretabilite sur quatre classes**"):
         st.markdown("#### Interpétabilité global")
         st.markdown("**Importance des variables explicatives pour la prédiction des tués**")
 
-        shap_df = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_classe_3_geo.zip".format(thispath),
-                              compression=dict(method='zip', archive_name='1_final_values_data_classe_3_geo.csv'))
+        # shap_df = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_classe_3_geo.zip".format(thispath),
+        #                       compression=dict(method='zip', archive_name='1_final_values_data_classe_3_geo.csv'))
+
+        shap_df = df
 
         shap_values_csv = shap_df.drop(columns=['x_test_instance', 'base_values']).values
 
@@ -32,31 +34,53 @@ def afficher_inter_4_classes(dataML: DataML):
         df_avg = calcul_moyenne(column_groups, df_shap)
         afficher_global_value(df_avg)
 
-        st.markdown("#### Interpétabilité d'une variable")
+        st.markdown("#### Interprétabilité d'une variable")
         selected_option = st.selectbox("Choisissez une variable", sorted(df_avg.columns), key="interpre_quatre")
 
         if selected_option:
             feature_summary_plot(selected_option, shap_df, shap_values_csv, dataML.X_test)
             show_categoriel_bar_plot(selected_option, df_shap, column_groups, plot_size=(9, 1))
 
+def get_final_shap_values_3(path) :
+    shap_df = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_classe_3_geo.zip".format(path),
+                              compression=dict(method='zip', archive_name='1_final_values_data_classe_3_geo.csv'))
+    return shap_df
 
-def afficher_inter_2_classes(dataML: DataML):
+
+def get_final_shap_values(path) :
+    df_part1 = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_geo_part1.zip".format(path)
+                               , compression=dict(method='zip'))
+    df_part2 = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_geo_part2.zip".format(path)
+                            , compression=dict(method='zip'))
+
+    shap_df = pd.concat([df_part1, df_part2], ignore_index=True)
+    
+    return shap_df
+
+st.cache_data()
+def afficher_inter_2_classes(dataML: DataML, df):
+    print('debut affichage')
     with st.expander("**Interpretabilite sur deux classes**"):
-        st.markdown("#### Interpétabilité global")
+        st.markdown("#### Interprétabilité globale")
         st.markdown("**Importance des variables explicatives pour la prédiction des tués**")
-
+        
         #shap_df = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_geo.zip".format(thispath),
         #                      compression=dict(method='zip', archive_name='1_final_catboost_values_data_geo.csv'))
         
-        df_part1 = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_geo_part1.zip".format(thispath)
-                               , compression=dict(method='zip'))
-        df_part2 = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_geo_part2.zip".format(thispath)
-                               , compression=dict(method='zip'))
+        # df_part1 = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_geo_part1.zip".format(thispath)
+        #                        , compression=dict(method='zip'))
+        # df_part2 = pd.read_csv("{}/..//Models/final_shapes_values/1_final_catboost_values_data_geo_part2.zip".format(thispath)
+        #                        , compression=dict(method='zip'))
 
-        shap_df = pd.concat([df_part1, df_part2], ignore_index=True)
+        # shap_df = pd.concat([df_part1, df_part2], ignore_index=True)
+        
+        shap_df = df
+
         shap_values_csv = shap_df.drop(columns=['x_test_instance', 'base_values']).values
 
         df_shap = pd.DataFrame(np.abs(shap_values_csv), columns=dataML.X_test.columns)
+
+        
 
         plt.figure(figsize=(9, 3))
 
@@ -68,8 +92,12 @@ def afficher_inter_2_classes(dataML: DataML):
         selected_option = st.selectbox("Choisissez une variable", sorted(df_avg.columns), key="interpre_deux")
 
         if selected_option:
+            print('1')
             feature_summary_plot(selected_option, shap_df, shap_values_csv, dataML.X_test)
+            print('2')
             show_categoriel_bar_plot(selected_option, df_shap, column_groups, plot_size=(9, 1))
+        
+        print('fin affichage')
 
 
 def calcul_moyenne(column_groups, df_shap):
@@ -92,7 +120,7 @@ def regroupement_variable(X_test):
 
     return column_groups
 
-
+st.cache_data()
 def afficher_global_value(df_avg):
     df_final_var_mean = pd.DataFrame(df_avg.mean().sort_values(ascending=False)).T
 
@@ -112,7 +140,7 @@ def afficher_global_value(df_avg):
 
     st.pyplot(plt)
 
-
+st.cache_data()
 def feature_summary_plot(var_name: str, shap_df, shap_values_csv, X_test):
     mois_columns_with_index = [(index, col) for index, col in enumerate(shap_df.columns) if col.startswith(var_name)]
 
@@ -124,7 +152,7 @@ def feature_summary_plot(var_name: str, shap_df, shap_values_csv, X_test):
 
     st.pyplot(plt)
 
-
+st.cache_data()
 def show_categoriel_bar_plot(col_name: str, df_shap, column_groups, plot_size=(5, 5)):
     #print(f"***** Annalyse des shap values de la variables {col_name} *****")
     df_shap_var_cat = pd.DataFrame(df_shap.mean().sort_values(ascending=False)).T

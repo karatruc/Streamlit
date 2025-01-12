@@ -50,17 +50,20 @@ def plot_cat(df, variable, normalize, dico_vars, stacked) :
 def plot_cat_old_data(df, variable, normalize, dico_vars) :
     return Functions.plot_cat_old_data(df, variable, normalize, dico_vars)
 
-st.cache_data()
-def afficher_inter_4_classes(data) :
-    return inter.afficher_inter_4_classes(data)
+# st.cache_data()
+# def afficher_inter_4_classes(data) :
+#     return inter.afficher_inter_4_classes(data)
 
-st.cache_data()
-def afficher_inter_2_classes(data) :
-    return inter.afficher_inter_2_classes(data)
+# st.cache_data()
+# def afficher_inter_2_classes(data) :
+#     return inter.afficher_inter_2_classes(data)
 
 st.cache_data()
 def afficher(data,df) :
     return ml.afficher(data,df)
+
+
+
 
 # @st.cache_data(show_spinner = False)
 # def load_data_ml():
@@ -84,7 +87,6 @@ var_vehi = ['catv','obs', 'obsm','choc','manv','motor']
 
 with st.spinner('Chargements des données...') :
 
-    print('###############chargement donnéees')
     if 'html_places' not in st.session_state :
         st.session_state['html_places'] = Functions.get_html_places(thispath, url_images)
     
@@ -115,15 +117,18 @@ with st.spinner('Chargements des données...') :
     
     map = st.session_state['map']
 
-    # if 'map_pie' not in st.session_state :
-    #     st.session_state['map_pie'] = Functions.get_geoloc_map_pie(df_accidents, thispath)
-    
-    #map_pie = st.session_state['map_pie']
 
     if 'dataML' not in st.session_state :    
         st.session_state['dataML'] = DataML()
 
     dataML = st.session_state['dataML']
+
+    if 'final_shap_values' not in st.session_state :
+        st.session_state['final_shap_values'] =  inter.get_final_shap_values(thispath)
+    
+    if 'final_shap_values_3' not in st.session_state :
+        st.session_state['final_shap_values_3'] =  inter.get_final_shap_values_3(thispath)
+
 
     
     
@@ -141,7 +146,7 @@ with tabPreprocessing :
     expPreprocessing_2 = st.expander("Nettoyage...")
     expPreprocessing_2.write(
         '''- Suppression des variables pour lesquelles plus de 25 % des valeurs n'étaient pas renseignées.\n
-- Suppression des lignes pour lesquelles sans variable d'intérêt (la gravité des blessures).\n
+- Suppression des lignes sans variable d'intérêt (la gravité des blessures).\n
 - Suppression des variables difficlement interprétables ( l'adresse,le numéro ou le type de voie, ou encore le département, le sens de circulation, etc.\n
 - Suppression de 14 % de lignes pour lesquelles au moins une valeur n'était pas renseignée.\n
 - Le jeu de données contient après ce nettoyage environ 443 000 enregistrements.\n
@@ -154,8 +159,7 @@ with tabPreprocessing :
         '''- Recodage des latitude et longitude (séparateur décimal).\n
 - Recodage des variables relatives aux équipements de sécurité ont été recodées 
 (Une variable binaire par type d'équipement)\n
-- Du champ heures minutes n'a été conservé que l'heure.\n
-- De la date de l'accident, nous n'avons conservé que la notion de week-end dans une variable binaire.\n
+- De l'horodatage, nous avons conservé uniquement l'heure, le mois et la notion de weekend oui semaine.\n
 - À partir de l'année de naissance des usagers nous avons calculé l'âge au moment dans l'année de l'accident.\n
 - Après ces traitements l'ensemble des variables catégorielles restantes a été recodées en entier.\n
 - La variable d'intérêt a été recodée de 0 à 3 de façon progressive avec la gravité.\n
@@ -220,7 +224,7 @@ with tabGeolocalisation :
         st.image('{}/images/map_monde.png'.format(thispath))
 
     with st.expander('Localisations tués et blessés graves en métropole', expanded = False) :
-        st.image('{}/images/map_france.png'.format(thispath))
+        st.image('{}/images/france.png'.format(thispath))
 
     with st.expander('Localisations des clusters', expanded = False) :
     #f_map = st_folium(map, use_container_width=True)# width=725)
@@ -381,23 +385,24 @@ with tabML:
     
     #import machinelearning as ml
     #ml.afficher(dataML,df_accidents)
+    print('debut ML')
     afficher(dataML,df_accidents)
+    print('fin ML')
 
 with tabInterpretabilite:
     
     #import interpretabilite as inter
-    afficher_inter_4_classes(dataML)
-    afficher_inter_2_classes(dataML)
-    #inter.afficher_inter_4_classes(dataML)
-    #inter.afficher_inter_2_classes(dataML)
+    inter.afficher_inter_4_classes(dataML, st.session_state['final_shap_values_3'])
+    inter.afficher_inter_2_classes(dataML, st.session_state['final_shap_values'])
+    
 
     
 with tabNN:
-    print('###############NN')
+    
     image1_path = os.path.join(thispath, "./images/img1.jpg")
     image2_path = os.path.join(thispath, "./images/img2.jpg")
     
-    st.subheader("Réseaux de Neurones", divider="gray")
+    #st.subheader("Réseaux de Neurones", divider="gray")
 
     st.subheader("Visualisation des Réseaux de Neurones")
 
